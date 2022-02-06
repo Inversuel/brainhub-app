@@ -11,9 +11,14 @@ import {
   Heading,
   Stack,
   useColorModeValue,
+  FlexboxProps,
+  useColorMode,
+  Box,
 } from "@chakra-ui/react";
 import { User } from "../Interface/User";
 import ReactDatePicker from "react-datepicker";
+import { motion } from "framer-motion";
+import { BsFillSunFill, BsFillMoonFill } from "react-icons/bs";
 
 export const Form = () => {
   const {
@@ -23,15 +28,46 @@ export const Form = () => {
     control,
     formState: { errors, isSubmitting },
   } = useForm();
-  const [startDate, setStartDate] = useState(new Date());
+
+  const { colorMode, toggleColorMode } = useColorMode();
+  const ClassNameForDataPicker =
+    colorMode === "light"
+      ? "chakra-input css-1c6j008"
+      : "chakra-input css-1rddv4z";
+
   const onSubmit = (data: any) => {
     console.log(data);
   };
   console.log(errors);
 
+  const FlexMotion = motion(Flex);
+  const FromLabelMotion = motion(FormLabel);
+  const HeadingMotion = motion(Heading);
+  const variants = {
+    hidden: { opacity: 0, y: "-100vh" },
+    visible: {
+      opacity: 1,
+      y: "0vh",
+      transition: { duration: 0.5, staggerChildren: 0.4 },
+    },
+  };
+
+  const variantsH = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.5, delay: 0.3 } },
+  };
+
+  const variantsI = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+  };
+
   return (
     <>
-      <Flex
+      <FlexMotion
+        initial="hidden"
+        animate="visible"
+        variants={variants}
         minH={"100vh"}
         align={"center"}
         justify={"center"}
@@ -47,12 +83,32 @@ export const Form = () => {
           p={6}
           my={12}
         >
-          <Heading lineHeight={1.1} fontSize={{ base: "2xl", md: "3xl" }}>
-            BrainHub
-          </Heading>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            flexDirection="row"
+          >
+            <HeadingMotion
+              variants={variantsH}
+              lineHeight={1.1}
+              fontSize={{ base: "2xl", md: "3xl" }}
+            >
+              BrainHub
+            </HeadingMotion>
+            {colorMode === "light" ? (
+              <Box _hover={{ cursor: "pointer" }}>
+                <BsFillMoonFill onClick={toggleColorMode} />
+              </Box>
+            ) : (
+              <Box _hover={{ cursor: "pointer" }}>
+                <BsFillSunFill onClick={toggleColorMode} />
+              </Box>
+            )}
+          </Box>
+
           <form onSubmit={handleSubmit(onSubmit)}>
             <FormControl id="firstName" isRequired isInvalid={errors.firstName}>
-              <FormLabel>First Name</FormLabel>
+              <FromLabelMotion variants={variantsI}>First Name</FromLabelMotion>
               <Input
                 type="text"
                 {...register("firstName", { required: "This is requried" })}
@@ -63,7 +119,7 @@ export const Form = () => {
             </FormControl>
 
             <FormControl id="lastName" isRequired isInvalid={errors.lastName}>
-              <FormLabel>Last Name</FormLabel>
+              <FromLabelMotion variants={variantsI}>Last Name</FromLabelMotion>
               <Input
                 type="text"
                 {...register("lastName", { required: "This is requried" })}
@@ -74,7 +130,9 @@ export const Form = () => {
             </FormControl>
 
             <FormControl id="email" isRequired isInvalid={errors.email}>
-              <FormLabel>Email address</FormLabel>
+              <FromLabelMotion variants={variantsI}>
+                Email address
+              </FromLabelMotion>
               <Input
                 placeholder="your-email@example.com"
                 _placeholder={{ color: "gray.500" }}
@@ -87,7 +145,7 @@ export const Form = () => {
             </FormControl>
 
             <FormControl id="eventDate" isRequired isInvalid={errors.eventDate}>
-              <FormLabel>Event Date</FormLabel>
+              <FromLabelMotion variants={variantsI}>Event Date</FromLabelMotion>
               <Controller
                 control={control}
                 name="eventDate"
@@ -95,7 +153,7 @@ export const Form = () => {
                   <ReactDatePicker
                     onChange={onChange} // send value to hook form
                     onBlur={onBlur} // notify when input is touched/blur
-                    className="chakra-input css-1c6j008"
+                    className={ClassNameForDataPicker}
                     showTimeInput
                     timeIntervals={15}
                     dateFormat="dd/MM/yyyy hh:MM"
@@ -138,7 +196,7 @@ export const Form = () => {
             </Stack>
           </form>
         </Stack>
-      </Flex>
+      </FlexMotion>
       {/* <form onSubmit={handleSubmit(onSubmit)}>
         <Input type="text" placeholder="First Name" {...register("firstName", {required: true})} />
         <Input type="text" placeholder="Last Name" {...register("lastName", {required: true})} />

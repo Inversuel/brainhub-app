@@ -1,11 +1,12 @@
-import { ChakraProvider, CSSReset, Box } from "@chakra-ui/react";
+import { ChakraProvider, CSSReset, Box,  } from "@chakra-ui/react";
 import React from "react";
 import { Form } from "./components/Form";
 import "react-datepicker/dist/react-datepicker.css"
+import theme from "./theme/theme"
 
 export default function App() {
   return (
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
       <CSSReset />
       <Box p={4}>
         <Form />
