@@ -1,4 +1,8 @@
 
+### On first start run: 
+
+#### `npm i`
+
 ## Available Scripts
 
 In the project directory to start front-end and back-end, you can run: 
