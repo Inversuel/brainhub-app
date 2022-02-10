@@ -1,4 +1,4 @@
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import React, { useState } from "react";
 import {
   FormErrorMessage,
@@ -14,6 +14,7 @@ import {
   FlexboxProps,
   useColorMode,
   Box,
+  useToast,
 } from "@chakra-ui/react";
 import { User } from "../Interface/User";
 import ReactDatePicker from "react-datepicker";
@@ -27,16 +28,41 @@ export const Form = () => {
     reset,
     control,
     formState: { errors, isSubmitting },
-  } = useForm();
-
+  } = useForm<User>();
+  const toast = useToast();
   const { colorMode, toggleColorMode } = useColorMode();
   const ClassNameForDataPicker =
     colorMode === "light"
       ? "chakra-input css-1c6j008"
       : "chakra-input css-1rddv4z";
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<User> = (data: User) => {
+    fetch("http://localhost:4000/event",{
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(data => {
+      toast({
+        title: 'EVENT created !',
+        description: "",
+        status: 'success',
+        duration: 8000,
+        isClosable: true,
+      })
+    })
+    .catch((error) => {
+      toast({
+        title: 'Event error !',
+        description: error.message,
+        status: 'error',
+        duration: 8000,
+        isClosable: true,
+      })
+    });
+    reset()
   };
   console.log(errors);
 
@@ -67,6 +93,7 @@ export const Form = () => {
       <FlexMotion
         initial="hidden"
         animate="visible"
+        exit="visible"
         variants={variants}
         minH={"100vh"}
         align={"center"}
@@ -107,7 +134,7 @@ export const Form = () => {
           </Box>
 
           <form onSubmit={handleSubmit(onSubmit)}>
-            <FormControl id="firstName" isRequired isInvalid={errors.firstName}>
+            <FormControl id="firstName" isRequired >
               <FromLabelMotion variants={variantsI}>First Name</FromLabelMotion>
               <Input
                 type="text"
@@ -118,7 +145,7 @@ export const Form = () => {
               </FormErrorMessage>
             </FormControl>
 
-            <FormControl id="lastName" isRequired isInvalid={errors.lastName}>
+            <FormControl id="lastName" isRequired >
               <FromLabelMotion variants={variantsI}>Last Name</FromLabelMotion>
               <Input
                 type="text"
@@ -129,7 +156,7 @@ export const Form = () => {
               </FormErrorMessage>
             </FormControl>
 
-            <FormControl id="email" isRequired isInvalid={errors.email}>
+            <FormControl id="email" isRequired >
               <FromLabelMotion variants={variantsI}>
                 Email address
               </FromLabelMotion>
@@ -140,28 +167,31 @@ export const Form = () => {
                 {...register("email", { required: "This is requried" })}
               />
               <FormErrorMessage>
-                {errors.name && errors.name.message}
+                {errors.email && errors.email.message}
               </FormErrorMessage>
             </FormControl>
 
-            <FormControl id="eventDate" isRequired isInvalid={errors.eventDate}>
+            <FormControl id="eventDate" isRequired >
               <FromLabelMotion variants={variantsI}>Event Date</FromLabelMotion>
               <Controller
                 control={control}
-                name="eventDate"
+                    {...register("email", { required: "This is requried" })}
+                    name="eventDate"
                 render={({ field: { onChange, onBlur, value, ref } }) => (
                   <ReactDatePicker
-                    onChange={onChange} // send value to hook form
-                    onBlur={onBlur} // notify when input is touched/blur
+                    onChange={onChange}
+                    onBlur={onBlur}
                     className={ClassNameForDataPicker}
-                    showTimeInput
                     timeIntervals={15}
-                    dateFormat="dd/MM/yyyy hh:MM"
+                    dateFormat="yyyy/MM/dd"
                     timeFormat="p"
-                    timeInputLabel="Time:"
                     todayButton="Today"
                     selected={value}
                     required
+                    disabledKeyboardNavigation
+                    data-cy="eventData"
+                    id="eventDateId"
+                    placeholderText="Event date"
                   />
                 )}
               />
@@ -183,6 +213,7 @@ export const Form = () => {
                   Clear
                 </Button>
                 <Button
+                  isLoading={isSubmitting}
                   type="submit"
                   bg={"blue.400"}
                   color={"white"}
@@ -197,13 +228,6 @@ export const Form = () => {
           </form>
         </Stack>
       </FlexMotion>
-      {/* <form onSubmit={handleSubmit(onSubmit)}>
-        <Input type="text" placeholder="First Name" {...register("firstName", {required: true})} />
-        <Input type="text" placeholder="Last Name" {...register("lastName", {required: true})} />
-        <Input type="email" placeholder="Email" {...register("email", {required: true})} />
-        <Input type="datetime" placeholder="Event Date" {...register("eventDate", {required: true})} />
-        <Input type="submit" />
-      </form> */}
     </>
   );
 };
